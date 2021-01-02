@@ -47,7 +47,7 @@ function sendButtons($chat, $text, $keyboard, $message_id) {
     return curl("{$API_URL}/sendMessage?chat_id={$chat}&reply_markup={$keyboard}&reply_to_message_id={$message_id}&text=" . urlencode($text));
 }
 
-function isMember($chat, $user) {
+function isMember($chat, $user) : bool {
     global $API_URL;
     if ($user == "777000" || $user == "1087968824") {
         return true; // 777000 - TG Official account id, 1087968824 - Anon Admin
