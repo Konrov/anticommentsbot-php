@@ -1,6 +1,6 @@
 <?php
 ////
-// Group AntiComments Bot v0.1
+// Group AntiComments Bot v0.2
 // Authors: @azeronde, @duvewo
 ////
 
@@ -28,12 +28,14 @@ function curl($url) {
 
 function sendMessage($chat, $text) {
     global $API_URL;
-    return curl("{$API_URL}/sendmessage?chat_id={$chat}&text=" . urlencode($text));
+    $text = urlencode($text);
+    return curl("{$API_URL}/sendmessage?chat_id={$chat}&text={$text}");
 }
 
 function reply($chat, $text, $message_id) {
     global $API_URL;
-    return curl("{$API_URL}/sendmessage?chat_id={$chat}&reply_to_message_id={$message_id}&text=" . urlencode($text));
+    $text = urlencode($text);
+    return curl("{$API_URL}/sendmessage?chat_id={$chat}&reply_to_message_id={$message_id}&text={$text}");
 }
 
 function deleteMessage($chat, $message_id) {
@@ -44,7 +46,13 @@ function deleteMessage($chat, $message_id) {
 function sendButtons($chat, $text, $keyboard, $message_id) {
     global $API_URL;
     $keyboard = urlencode($keyboard);
-    return curl("{$API_URL}/sendMessage?chat_id={$chat}&reply_markup={$keyboard}&reply_to_message_id={$message_id}&text=" . urlencode($text));
+    $text = urlencode($text);
+    return curl("{$API_URL}/sendMessage?chat_id={$chat}&reply_markup={$keyboard}&reply_to_message_id={$message_id}&text={$text}");
+}
+
+function leaveChat($chat) {
+    global $API_URL;
+    return curl("{$API_URL}/leavechat?chat_id={$chat}");
 }
 
 function isMember($chat, $user) : bool {
@@ -96,18 +104,22 @@ $senderUsername = $update->message->from->username;
 
 // Bot should work only in the allowed chat
 if ($chatId != $ALLOWED_CHAT) {
+    if ($chatType != "private") {
+        leaveChat($chatId);
+        die();
+    }
     die();
 }
 
 // If not supergroup (do not have @username)
 if ($chatType != "supergroup") {
-    sendMessage($chatId, "This chat is not a supergroup. Please make the chat a supergroup or kick me.");
+    sendMessage($chatId, $config->NotSupergroup);
     die();
 }
 
 ## Keyboard
 $chatLink = "https://t.me/{$chatUsername}";
-$inlineButton = array("text" => "Присоединиться", "url" => $chatLink);
+$inlineButton = array("text" => $config->ButtonText, "url" => $chatLink);
 $inlineKeyboard = [[$inlineButton]];
 $keyboard = json_encode(array("inline_keyboard" => $inlineKeyboard));
 
@@ -116,7 +128,8 @@ $keyboard = json_encode(array("inline_keyboard" => $inlineKeyboard));
 ////
 
 if (!isMember($chatId, $senderId)) {
-    $botResponse = json_decode(sendButtons($chatId, "Привет {$senderFname} :)\nКомментарии доступны только участникам чата {$chatName}!", $keyboard, $messageId));
+    $greeting = sprintf($config->GreetingText, $senderFname, $chatName);
+    $botResponse = json_decode(sendButtons($chatId, $greeting, $keyboard, $messageId));
     deleteMessage($chatId, $messageId);
     $botMessageId = $botResponse->result->message_id;
     updateId($chatId, $botMessageId);
