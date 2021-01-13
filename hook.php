@@ -1,7 +1,6 @@
 <?php
 ////
-// Group AntiComments Bot v0.2
-// Authors: @azeronde, @duvewo
+// Group AntiComments Bot v0.2.1
 ////
 
 require_once "config.php";
@@ -90,17 +89,18 @@ $update = json_decode(file_get_contents("php://input"));
 
 $ALLOWED_CHAT = $config->getChatId();
 
-$chatId =         $update->message->chat->id;
-$chatUsername =   $update->message->chat->username;
-$chatName =       $update->message->chat->title;
-$chatType =       $update->message->chat->type;
+$chatId =             $update->message->chat->id;
+$chatUsername =       $update->message->chat->username;
+$chatTitle =          $update->message->chat->title;
+$chatType =           $update->message->chat->type;
 
-$messageText =    $update->message->text;
-$messageId =      $update->message->message_id;
+$messageText =        $update->message->text;
+$messageId =          $update->message->message_id;
 
-$senderId =       $update->message->from->id;
-$senderFname =    $update->message->from->first_name;
-$senderUsername = $update->message->from->username;
+$senderId =           $update->message->from->id;
+$senderFirstName =    $update->message->from->first_name;
+$senderLastName =     $update->message->from->last_name;
+$senderUsername =     $update->message->from->username;
 
 // Bot should work only in the allowed chat
 if ($chatId != $ALLOWED_CHAT) {
@@ -123,12 +123,13 @@ $inlineButton = array("text" => $config->ButtonText, "url" => $chatLink);
 $inlineKeyboard = [[$inlineButton]];
 $keyboard = json_encode(array("inline_keyboard" => $inlineKeyboard));
 
-////
-// Main
-////
+
+if ($config->OnlyReplies == true && !isset($update->message->reply_to_message) && strpos($messageText, "/ping") !== 0) {
+    die();
+} 
 
 if (!isMember($chatId, $senderId)) {
-    $greeting = sprintf($config->GreetingText, $senderFname, $chatName);
+    $greeting = sprintf($config->GreetingText, $senderFirstName, $chatTitle);
     $botResponse = json_decode(sendButtons($chatId, $greeting, $keyboard, $messageId));
     deleteMessage($chatId, $messageId);
     $botMessageId = $botResponse->result->message_id;
@@ -136,10 +137,7 @@ if (!isMember($chatId, $senderId)) {
     die();
 }
 
-// Ping pong
 if (strpos($messageText, "/ping") === 0) {
     sendMessage($chatId, "Pong!");
-    exit;
+    die();
 }
-
-?>
