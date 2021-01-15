@@ -1,25 +1,63 @@
 <?php
 
 class Config {
-    private $BotToken; // $BotToken = "12345:abcde";
-    private $ChatId; // $ChatId = "12345678";
-    private $HookSecret; // $HookSecret = "hqTIWGKi8cCiyuSt2pWj";
+    // Токен бота. Пример: "1234500:ABCDE-iCtqUhs"
+    private $BotToken;
+
+    // Идентификатор разрешённого чата. Обычно начинается с -100.
+    private $ChatId;
+
+    // Идентификатор адиина. Нужно для проверки работоспособности бота.
+    private $AdminId;
+
+    /* 
+     * Секретный ключ для доступа к обработчику.
+     * Защитит от поддельных запросов, если
+     * кто-нибудь узнает адрес хука.
+     * Можно свою фразу, но лучше воспользоваться
+     * https://onlinerandomtools.com/generate-random-string
+     */
+    private $HookSecret;
+
+    /* 
+     * Приветственное сообщение.
+     * Первый "%s" - имя пользователя.
+     * Второй - имя чата.
+     * Не больше 4096 символов.
+     */
     public $GreetingText =  "Привет, %s!\nКомментарии доступны только участникам чата %s :)";
+
+    // Текст кнопки
     public $ButtonText =    "Присоединиться";
+
+    // Уведом.
     public $NotSupergroup = "Данный чат не является супергруппой. Пожалуйста, исправьте это или исключите меня.";
     
-    // Для снижения кол-ва запросов к Bot API
+    /*
+     * Для снижения количества запросов
+     * к Telegram Bot API.
+     * true - будет проверять отправителя сообщения
+     * только в случае, если оно является ответом на
+     * другое сообщение. (Комменты - ответы на сообщение
+     * с канала)
+     *
+     * false - проверяется отправитель каждого сообщения.
+     * Потребляет больше ресурсов.
+     * Не рекомендую для больших чатов, так как Bot API
+     * имеет ограничения на кол-во запросов в секунду.
+     */
     public $OnlyReplies = true;
 
-    public function getBotToken(){
+
+    public function getBotToken() {
         return $this->BotToken;
     }
 
-    public function getChatId(){
+    public function getChatId() {
         return $this->ChatId;
     }
-    
-    public function getHookSecret(){
+        
+    public function getHookSecret() {
         return $this->HookSecret;
     }
 }
