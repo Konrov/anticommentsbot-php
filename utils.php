@@ -14,24 +14,24 @@ define("ADMIN", $config->AdminId);
 
 class Utils {
 
-    public function sendMessage($chat, $text) : ?stdClass {
+    public function sendMessage($chat, $text, $entity = null) : ?stdClass {
         $text = urlencode($text);
-        return json_decode(curl(API."/sendmessage?chat_id={$chat}&text={$text}"));
+        return json_decode(curl(API."/sendmessage?chat_id={$chat}&parse_mode={$entity}&text={$text}"));
     }
     
-    public function reply($chat, $text, $message_id) : ?stdClass {
+    public function reply($chat, $text, $entity = null, $message_id) : ?stdClass {
         $text = urlencode($text);
-        return json_decode(curl(API."/sendmessage?chat_id={$chat}&reply_to_message_id={$message_id}&text={$text}"));
+        return json_decode(curl(API."/sendmessage?chat_id={$chat}&reply_to_message_id={$message_id}&parse_mode={$entity}&text={$text}"));
     }
     
     public function deleteMessage($chat, $message_id) : ?stdClass {
         return json_decode(curl(API."/deletemessage?chat_id={$chat}&message_id={$message_id}"));
     }
     
-    public function sendButtons($chat, $text, $keyboard, $message_id) : ?stdClass {
+    public function sendButtons($chat, $text, $entity = null, $keyboard, $message_id) : ?stdClass {
         $keyboard = urlencode($keyboard);
         $text = urlencode($text);
-        return json_decode(curl(API."/sendMessage?chat_id={$chat}&reply_markup={$keyboard}&reply_to_message_id={$message_id}&text={$text}"));
+        return json_decode(curl(API."/sendMessage?chat_id={$chat}&parse_mode={$entity}&reply_markup={$keyboard}&reply_to_message_id={$message_id}&text={$text}"));
     }
     
     public function leaveChat($chat) : void {
@@ -56,16 +56,16 @@ class Utils {
         $getWebhook = json_decode(curl(API."/getWebhookInfo"));
         if ($getMe->ok && $getWebhook->ok) {
             $info = "Текущий конфиг бота: ";
-            $info .= "\nID: " . $getMe->result->id;
+            $info .= "\nID: <code>" . $getMe->result->id . "</code>";
             $info .= "\nИмя: " . $getMe->result->first_name;
-            $info .= "\nID Admin: " . ADMIN;
+            $info .= "\nID Admin: <code>" . ADMIN . "</code>";
             $info .= "\nДобавление в группы: " . ($getMe->result->can_join_groups ? "Разрешено ⚠️" : "Запрещено ✅");
             $info .= "\nДоступ к сообщениям: " . ($getMe->result->can_read_all_group_messages ? "Есть ✅" : "Нет ⚠️");
-            $info .= "\nМакс. кол-во одновременных соединений: " . $getWebhook->result->max_connections;
-            $info .= "\nПоследняя ошибка вебхука (дата): " . (isset($getWebhook->result->last_error_date) ? date("d/m/Y H:i:s", $getWebhook->result->last_error_date) : "Нет" );
-            $info .= "\nСообщение последней ошибки: " . (isset($getWebhook->result->last_error_message) ? $getWebhook->result->last_error_message : "Нет" );
+            $info .= "\nМакс. кол-во одновременных соединений: <code>" . $getWebhook->result->max_connections . "</code>";
+            $info .= "\nПоследняя ошибка вебхука (дата): <code>" . (isset($getWebhook->result->last_error_date) ? date("d/m/Y H:i:s", $getWebhook->result->last_error_date) : "Нет" ) . "</code>";
+            $info .= "\nСообщение последней ошибки: <i>" . (isset($getWebhook->result->last_error_message) ? $getWebhook->result->last_error_message : "Нет" ) . "</i>";
         }
-        $this->sendMessage(ADMIN, $info);
+        $this->sendMessage(ADMIN, $info, "html");
         return;
     }
 

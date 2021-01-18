@@ -52,7 +52,7 @@ if ($chatId != $ALLOWED_CHAT && $chatId != $config->AdminId) {
 }
 
 // If not supergroup (do not have @username)
-if ($chatType != "supergroup" && $chatType != "private") {
+if ($chatType != "supergroup") {
     $utils->sendMessage($chatId, $config->NotSupergroup);
     die();
 }
@@ -71,7 +71,7 @@ if ($config->OnlyReplies && $utils->isReply($update) != true) {
 
 if ($utils->isMember($chatId, $senderId) != true) {
     $greeting = sprintf($config->GreetingText, $senderFirstName, $chatTitle);
-    $botResponse = $utils->sendButtons($chatId, $greeting, $keyboard, $messageId);
+    $botResponse = $utils->sendButtons($chatId, $greeting, "html", $keyboard, $messageId);
     $utils->deleteMessage($chatId, $messageId);
     $botMessageId = $botResponse->result->message_id;
     $utils->updateId($chatId, $botMessageId);
