@@ -43,7 +43,7 @@ class Utils {
     }
 
     public function isMember($chat, $user) : bool {
-        if (in_array($user, ['777000', '1087968824'], true)) {
+        if (in_array($user, [777000, 1087968824], true)) {
             return true; // 777000 - TG Official account id, 1087968824 - Anon Admin
         }
         $response = json_decode(curl(API."/getchatmember?chat_id={$chat}&user_id={$user}"));
